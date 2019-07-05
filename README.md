@@ -1,2 +1,2 @@
 # czip
-A (likely) crappy zipping program
+A (likely crappy) zipping program
