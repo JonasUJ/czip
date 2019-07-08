@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Collections.Generic;
@@ -7,9 +7,9 @@ using System.Text;
 
 namespace czip
 {
-    public class ZipDirectory
+    public class ZipDirectory : IZippable
     {
-        public string Name;
+        public string Name { get; set; }
         public List<ZipDirectory> Directories = new List<ZipDirectory>();
         public List<ZipFile> Files = new List<ZipFile>();
 

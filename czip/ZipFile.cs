@@ -7,9 +7,9 @@ using System.Text;
 
 namespace czip
 {
-    public class ZipFile
+    public class ZipFile : IZippable
     {
-        public string Name;
+        public string Name { get; set; }
         public string Extension { get => Path.GetExtension(Name); }
         public long Start;
         public long Size;
