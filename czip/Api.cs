@@ -157,6 +157,15 @@ namespace czip
                     UnpackDirectory(rootDir, mmf, fi.Directory.FullName);
                 }
             }
+
+        private static IZippable SelectorSearch(ZipDirectory root, IEnumerable<string> selector)
+        {
+            if (selector.Count() == 0) return root;
+            ConsoleUtil.PrintInfo($"Searching for {selector.First()} in {root.Name}");
+            IZippable zip = root.FindByName(selector.First());
+            if (selector.Count() == 1) return zip;
+            if (zip is ZipDirectory zdir) return SelectorSearch(zdir, selector.Skip(1));
+            return null;
         }
 
         public static void UnpackDirectory(
