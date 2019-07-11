@@ -38,6 +38,7 @@ namespace czip
             {
                 res.AppendLine($"\nIndex of {path}:");
                 ZipDirectory rootDir = Index(path);
+                if (rootDir == null) continue;
                 res = PPIndexRecursionHelper(rootDir, res);
             }
             return res.ToString();
