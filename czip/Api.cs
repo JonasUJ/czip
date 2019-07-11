@@ -19,14 +19,18 @@ namespace czip
     {
         public static ZipDirectory Index(string path)
         {
-            using (MemoryMappedFile mmf = MemoryMappedFile.CreateFromFile(path, FileMode.Open))
-            {
-                FileInfo fi = new FileInfo(path);
                 using (StreamReader stream = new StreamReader(
-                    mmf.CreateViewStream(0, fi.Length), Encoding.Unicode))
+                File.OpenRead(path), Encoding.Unicode))
                 {
-                    ZipDirectory zdir = IndexParser.ParseStream(stream);
+                try
+                {
+                    ZipDirectory zdir = IndexParser.Parse(stream);
                     return zdir;
+                }
+                catch (ParseException)
+                {
+                    ConsoleUtil.PrintError($"Unable to parse index of {path}");
+                    return null;
                 }
             }
         }
