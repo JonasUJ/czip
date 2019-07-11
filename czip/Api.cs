@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Collections.Generic;
@@ -19,9 +19,9 @@ namespace czip
     {
         public static ZipDirectory Index(string path)
         {
-                using (StreamReader stream = new StreamReader(
+            using (StreamReader stream = new StreamReader(
                 File.OpenRead(path), Encoding.Unicode))
-                {
+            {
                 try
                 {
                     ZipDirectory zdir = IndexParser.Parse(stream);
@@ -166,7 +166,7 @@ namespace czip
                     }
                 }
             }
-                }
+        }
 
         public static void Unzip(IEnumerable<string> paths, IEnumerable<string> selectors)
         {
@@ -212,8 +212,8 @@ namespace czip
                         }
                     }
                 }
-                }
             }
+        }
 
         private static IZippable SelectorSearch(ZipDirectory root, IEnumerable<string> selector)
         {

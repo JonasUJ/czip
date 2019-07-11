@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,13 +52,13 @@ namespace czip
         {
             if (args != null && args.Length > 0)
             {
-            Parser.Default.ParseArguments<Options>(args)
-                .WithNotParsed(errs => HandleErrors(errs))
-                .WithParsed(opts => RunOptions(opts));
+                Parser.Default.ParseArguments<Options>(args)
+                    .WithNotParsed(errs => HandleErrors(errs))
+                    .WithParsed(opts => RunOptions(opts));
 
-            Console.Write("Press any key to exit . . . ");
-            Console.ReadKey();
-        }
+                Console.Write("Press any key to exit . . . ");
+                Console.ReadKey();
+            }
             else
             {
                 Console.WriteLine("Sorry, but the console will be unavailable until the program has been closed :(");
@@ -89,7 +89,7 @@ namespace czip
                     if (opts.Select.Count() != 0)
                         Api.Unzip(opts.Path, opts.Select);
                     else
-                    Api.Unzip(opts.Path);
+                        Api.Unzip(opts.Path);
                 }
                 else
                 {
