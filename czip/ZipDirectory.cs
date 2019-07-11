@@ -31,6 +31,14 @@ namespace czip
                     yield return zfile;
         }
 
+        public IZippable FindByName(string name)
+        {
+            IZippable found = Files.Find(z => z.Name == name);
+            if (found != null) return found;
+            found = Directories.Find(z => z.Name == name);
+            return found;
+        }
+
         public string Serialize()
         {
             StringBuilder sb = new StringBuilder();
