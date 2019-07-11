@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Collections.Generic;
@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace czip
 {
+    public class ParseException : Exception
+    {
+        public ParseException() { }
+        public ParseException(string message) : base(message) { }
+        public ParseException(string message, Exception inner) : base(message, inner) { }
+    }
+
     public static class IndexParser
     {
         public const char FS = (char) 28;
