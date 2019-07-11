@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,22 +15,22 @@ namespace czip
 
     public class MessageEventArgs : ConsoleEventArgs
     {
-        public MessageEventArgs(string msg) : base(msg) {}
+        public MessageEventArgs(string msg) : base(msg) { }
     }
 
     public class InfoEventArgs : ConsoleEventArgs
     {
-        public InfoEventArgs(string msg) : base(msg) {}
+        public InfoEventArgs(string msg) : base(msg) { }
     }
 
     public class WarningEventArgs : ConsoleEventArgs
     {
-        public WarningEventArgs(string msg) : base(msg) {}
+        public WarningEventArgs(string msg) : base(msg) { }
     }
 
     public class ErrorEventArgs : ConsoleEventArgs
     {
-        public ErrorEventArgs(string msg) : base(msg) {}
+        public ErrorEventArgs(string msg) : base(msg) { }
     }
 
     public static class ConsoleUtil
