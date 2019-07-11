@@ -3,13 +3,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using System.Reflection;
 using CommandLine;
 using CommandLine.Text;
+using System.Runtime.InteropServices;
 
 [assembly: AssemblyUsage(
     "   czip -p <PATH>... [-u [-s <PATH>...]] [-l <PATH>] [-i] [-y]",
-    "   czip -p path/to/dir\n" +
+    "   czip -p path/to/dir",
     "   czip -p file1.txt file2.txt dir1 dir2",
     "   czip -p file.czip --unzip",
     "   czip -p file.czip --unzip --select path/to/dir path/to/file.txt")]
@@ -18,6 +18,9 @@ namespace czip
 {
     class Program
     {
+        [DllImport("kernel32.dll")]
+        private static extern bool FreeConsole();
+
         private static bool isHelpOrVersion;
 
         public class Options
@@ -45,22 +48,25 @@ namespace czip
             public bool Yes { get; set; }
         }
 
-        [STAThread]
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            if (args != null && args.Length > 0)
             {
-                OpenGUI();
-                return;
-            }
-
-            Console.ForegroundColor = ConsoleColor.White;
             Parser.Default.ParseArguments<Options>(args)
                 .WithNotParsed(errs => HandleErrors(errs))
                 .WithParsed(opts => RunOptions(opts));
 
             Console.Write("Press any key to exit . . . ");
             Console.ReadKey();
+        }
+            else
+            {
+                Console.WriteLine("Sorry, but the console will be unavailable until the program has been closed :(");
+                FreeConsole();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
+            }
         }
 
         public static void RunOptions(Options opts)
@@ -173,13 +179,6 @@ namespace czip
                 isHelpOrVersion = true;
             else
                 isHelpOrVersion = false;
-        }
-
-        public static void OpenGUI()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainUI());
         }
     }
 }
