@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,6 +80,9 @@ namespace czip
                 }
                 else if (opts.Unzip)
                 {
+                    if (opts.Select.Count() != 0)
+                        Api.Unzip(opts.Path, opts.Select);
+                    else
                     Api.Unzip(opts.Path);
                 }
                 else
