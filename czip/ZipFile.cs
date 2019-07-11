@@ -39,11 +39,24 @@ namespace czip
         public void CopyFromMappedFile(MemoryMappedFile file)
         {
             if (Size > 0)
-                using (MemoryMappedViewStream viewstream = file.CreateViewStream(Start, Size))
-                    using (FileStream stream = File.Open(FileMode.Create, FileAccess.Write))
+            {
+                MemoryMappedViewStream viewstream;
+                try
+                {
+                    viewstream = file.CreateViewStream(Start, Size, MemoryMappedFileAccess.Read);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    throw new CorruptionException(
+                        "File data is not present in the MemoryMappedFile");
+                }
+                using (viewstream)
+                using (FileStream stream = File.Open(
+                        FileMode.Create, FileAccess.Write, FileShare.Read))
                         viewstream.CopyTo(stream);
+            }
             else
-                using (FileStream _ = File.Create()) {}
+                using (FileStream _ = File.Create()) { }
 
         }
 
