@@ -142,19 +142,71 @@ namespace czip
             foreach (string path in paths)
             {
                 ConsoleUtil.PrintMessage($"Unzipping {path}");
-                FileInfo fi = new FileInfo(path);
-                ZipDirectory rootDir;
-                using (StreamReader stream = new StreamReader(
-                    fi.OpenRead(), Encoding.Unicode))
-                {
-                    ConsoleUtil.PrintMessage("Parsing index...");
-                    rootDir = IndexParser.ParseStream(stream);
-                }
+                ConsoleUtil.PrintMessage("Parsing index...");
+                ZipDirectory rootDir = Index(path);
+                if (rootDir == null) continue;
+
                 using (MemoryMappedFile mmf =
                        MemoryMappedFile.CreateFromFile(path, FileMode.Open))
                 {
                     ConsoleUtil.PrintMessage("Unpacking...");
-                    UnpackDirectory(rootDir, mmf, fi.Directory.FullName);
+                    try
+                    {
+                        UnpackDirectory(rootDir, mmf, Path.GetDirectoryName(path));
+                    }
+                    catch (CorruptionException)
+                    {
+                        ConsoleUtil.PrintError("The .czip file is corrupt because it does not " +
+                            "contain all the data its index points to");
+                    }
+                }
+            }
+                }
+
+        public static void Unzip(IEnumerable<string> paths, IEnumerable<string> selectors)
+        {
+            foreach (string path in paths)
+            {
+                ZipDirectory rootDir = Index(path);
+                if (rootDir == null) continue;
+
+                using (MemoryMappedFile mmf =
+                       MemoryMappedFile.CreateFromFile(path, FileMode.Open))
+                {
+                    foreach (string selector in selectors)
+                    {
+                        IZippable zip = SelectorSearch(
+                            rootDir,
+                            selector.Split(
+                                new char[] { '\\', '/' },
+                                StringSplitOptions.RemoveEmptyEntries));
+                        try
+                        {
+                            if (zip is ZipDirectory zdir)
+                            {
+                                ConsoleUtil.PrintMessage(
+                                    $"Unpacking directory {zdir.Name} from {path}");
+                                UnpackDirectory(zdir, mmf, Path.GetDirectoryName(path));
+                            }
+                            else if (zip is ZipFile zfile)
+                            {
+                                ConsoleUtil.PrintMessage(
+                                    $"Unpacking file {zfile.Name} from {path}");
+                                UnpackFile(zfile, mmf, Path.GetDirectoryName(path));
+                            }
+                            else
+                            {
+                                ConsoleUtil.PrintWarning(
+                                    $"Selector {selector} not found in {path}");
+                            }
+                        }
+                        catch (CorruptionException)
+                        {
+                            ConsoleUtil.PrintError("The .czip file is corrupt because it does " +
+                                "not contain all the data its index points to");
+                        }
+                    }
+                }
                 }
             }
 
