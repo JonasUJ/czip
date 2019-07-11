@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ namespace czip
 
         public void CopyToFile(FileStream stream)
         {
-            using (FileStream origin = File.Open(FileMode.Open, FileAccess.Read))
+            using (FileStream origin = File.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 origin.CopyTo(stream);
             }
