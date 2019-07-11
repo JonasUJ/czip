@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace czip
 {
-    public partial class MainUI : Form
+    public partial class MainForm : Form
     {
-        public MainUI()
+        public MainForm()
         {
             InitializeComponent();
         }
