@@ -85,8 +85,8 @@ namespace czip
         {
             if (!Verbose) return;
             ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Cyan;
             OnInfoEvent(new InfoEventArgs(msg));
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;
         }
@@ -94,8 +94,8 @@ namespace czip
         public static void PrintWarning(string msg)
         {
             ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Yellow;
             OnWarningEvent(new WarningEventArgs(msg));
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;
         }
@@ -103,8 +103,8 @@ namespace czip
         public static void PrintError(string msg)
         {
             ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkRed;
             OnErrorEvent(new ErrorEventArgs(msg));
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;
         }
