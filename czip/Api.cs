@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Collections.Generic;
@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace czip
 {
+    public class CorruptionException : Exception
+    {
+        public CorruptionException() { }
+        public CorruptionException(string message) : base(message) { }
+        public CorruptionException(string message, Exception inner) : base(message, inner) { }
+    }
+
     public static class Api
     {
         public static ZipDirectory Index(string path)
