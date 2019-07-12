@@ -159,7 +159,7 @@ namespace czip
                     ConsoleUtil.PrintMessage("Unpacking...");
                     try
                     {
-                        UnpackDirectory(rootDir, mmf, Path.GetDirectoryName(path));
+                        UnpackDirectory(rootDir, mmf, Directory.GetCurrentDirectory());
                     }
                     catch (CorruptionException)
                     {
@@ -193,13 +193,13 @@ namespace czip
                             {
                                 ConsoleUtil.PrintMessage(
                                     $"Unpacking directory {zdir.Name} from {path}");
-                                UnpackDirectory(zdir, mmf, Path.GetDirectoryName(path));
+                                UnpackDirectory(zdir, mmf, Directory.GetCurrentDirectory());
                             }
                             else if (zip is ZipFile zfile)
                             {
                                 ConsoleUtil.PrintMessage(
                                     $"Unpacking file {zfile.Name} from {path}");
-                                UnpackFile(zfile, mmf, Path.GetDirectoryName(path));
+                                UnpackFile(zfile, mmf, Directory.GetCurrentDirectory());
                             }
                             else
                             {
