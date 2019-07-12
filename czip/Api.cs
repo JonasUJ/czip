@@ -49,14 +49,18 @@ namespace czip
         }
 
         private static StringBuilder PPIndexRecursionHelper(
-            ZipDirectory curdir, StringBuilder builder, string curpath = "")
+            ZipDirectory curdir,
+            StringBuilder builder,
+            string curpath = "",
+            bool addDirName = false)
         {
-            curpath = $"{curpath}{curdir.Name}/";
+            if (addDirName) curpath = $"{curpath}{curdir.Name}/";
+            else curpath = $"{curpath}/";
             builder.AppendLine($"DIR  {curpath}");
             foreach (ZipFile zfile in curdir.Files)
                 builder.AppendLine($"FILE {curpath}{zfile.Name}");
             foreach (ZipDirectory zdir in curdir.Directories)
-                builder = PPIndexRecursionHelper(zdir, builder, curpath);
+                builder = PPIndexRecursionHelper(zdir, builder, curpath, true);
             return builder;
         }
 

@@ -24,9 +24,8 @@ namespace czip
 
         public static ZipDirectory Parse(StreamReader stream)
         {
-            ZipDirectory zdir = new ZipDirectory();
-            zdir.Directories.Add(ParseDirectory(stream));
-            return zdir;
+            ZipDirectory root = ParseDirectory(stream);
+            return root;
         }
 
         private static ZipFile ParseFile(StreamReader stream)
@@ -77,7 +76,6 @@ namespace czip
                 if (curChar == GS)
                 {
                     zdir.Name = curField.ToString();
-                    curChar = (char)0;
                     curField.Clear();
                     break;
                 }
