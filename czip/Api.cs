@@ -75,7 +75,7 @@ namespace czip
                 if (fi.Exists)
                 {
                     ZipFile zfile = PackFile(fi);
-                    rootDir.Files.Add(zfile);
+                    if (zfile != null) rootDir.Files.Add(zfile);
                 }
                 else if (di.Exists)
                 {
@@ -90,22 +90,7 @@ namespace czip
             {
                 fs.Write(Encoding.Unicode.GetBytes(rootDir.Serialize()), 0, offset);
                 foreach (ZipFile zfile in rootDir.AllFiles())
-                {
-                    try
-                    {
-                        zfile.CopyToFile(fs);
-                    }
-                    catch (IOException)
-                    {
-                        ConsoleUtil.PrintWarning(
-                            $"Skipping {zfile.File.FullName} because it cannot be read");
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ConsoleUtil.PrintWarning(
-                            $"Skipping {zfile.File.FullName} because access was denied");
-                    }
-                }
+                    zfile.CopyToFile(fs);
                 ConsoleUtil.PrintMessage($"Created .czip file {location}");
             }
         }
@@ -124,7 +109,7 @@ namespace czip
                 foreach (FileInfo fi in dirinfo.GetFiles())
                 {
                     ZipFile zfile = PackFile(fi);
-                    zdir.Files.Add(zfile);
+                    if (zfile != null) zdir.Files.Add(zfile);
                 }
                 return zdir;
             }
@@ -138,6 +123,23 @@ namespace czip
         public static ZipFile PackFile(FileInfo fileinfo)
         {
             ConsoleUtil.PrintInfo($"Packing file {fileinfo.FullName}");
+            try
+            {
+                using (FileStream _ =
+                    fileinfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read)) { }
+            }
+            catch (IOException)
+            {
+                ConsoleUtil.PrintWarning(
+                    $"Skipping {fileinfo.FullName} because it cannot be read");
+                return null;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                ConsoleUtil.PrintWarning(
+                    $"Skipping {fileinfo.FullName} because access was denied");
+                return null;
+            }
             ZipFile zfile = new ZipFile(fileinfo);
             return zfile;
         }
