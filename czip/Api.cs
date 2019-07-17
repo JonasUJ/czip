@@ -186,6 +186,7 @@ namespace czip
                 {
                     foreach (string selector in selectors)
                     {
+                        ConsoleUtil.PrintInfo($"Searching for selector: {selector}");
                         IZippable zip = SelectorSearch(
                             rootDir,
                             selector.Split(
@@ -235,7 +236,23 @@ namespace czip
             ZipDirectory dir, MemoryMappedFile mmf, string dirPath)
         {
             ConsoleUtil.PrintInfo($"Unpacking directory {dir.Name}");
-            DirectoryInfo di = Directory.CreateDirectory($"{dirPath}\\{dir.Name}");
+            DirectoryInfo di = new DirectoryInfo($"{dirPath}\\{dir.Name}");
+            try
+            {
+                di = Directory.CreateDirectory($"{dirPath}\\{dir.Name}");
+            }
+            catch (IOException)
+            {
+                string newName = ConsoleUtil.FilteredPrompt(
+                    "Unzip location already exist, type new name: ",
+                    Path.GetInvalidFileNameChars());
+                while (di.Exists) {
+                    newName = ConsoleUtil.FilteredPrompt(
+                        "New name also already exist, type another new name: ",
+                        Path.GetInvalidFileNameChars());
+                    di = new DirectoryInfo($"{dirPath}\\{newName}");
+                }
+            }
             foreach (ZipDirectory subdir in dir.Directories)
             {
                 UnpackDirectory(subdir, mmf, di.FullName);

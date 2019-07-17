@@ -75,6 +75,20 @@ namespace czip
             return false;
         }
 
+        public static string FilteredPrompt(string msg, char[] filter)
+        {
+            Console.Write(msg);
+            StringBuilder res = new StringBuilder();
+            ConsoleKeyInfo c = new ConsoleKeyInfo();
+            while (c.Key != ConsoleKey.Enter) {
+                c = Console.ReadKey();
+                if (filter.Contains(c.KeyChar)) continue;
+                Console.Write(c.KeyChar);
+                res.Append(c.KeyChar);
+            }
+            return res.ToString();
+        }
+
         public static void PrintMessage(string msg)
         {
             OnMessageEvent(new MessageEventArgs(msg));

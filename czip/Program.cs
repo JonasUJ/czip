@@ -132,7 +132,9 @@ namespace czip
             {
                 ConsoleUtil.PrintError("An argument to --path is invalid: " + ex.Message);
                 if (ex is ArgumentException)
-                    ConsoleUtil.PrintWarning("Are you escaping a quote? e.g. \"\\path to\\dir\\\"");
+                    ConsoleUtil.PrintWarning(
+                        "Are you escaping a quote? e.g. \"\\path to\\dir\\\" instead of " +
+                        "\"\\path to\\dir\\\\\"");
                 return false;
             }
 
@@ -161,6 +163,11 @@ namespace czip
                     ConsoleUtil.PrintError(
                         "--path must point to a .czip file when using the --unzip option");
                     return false;
+                }
+                if (opts.Index && !filePath.Exists)
+                {
+                    ConsoleUtil.PrintError(
+                        $"--path must point to a file and not a directory ({p})");
                 }
             }
             return true;

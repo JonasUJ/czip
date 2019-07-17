@@ -33,9 +33,10 @@ namespace czip
 
         public IZippable FindByName(string name)
         {
-            IZippable found = Files.Find(z => z.Name == name);
+            name = name.ToLower();
+            IZippable found = Files.Find(z => z.Name.ToLower() == name);
             if (found != null) return found;
-            found = Directories.Find(z => z.Name == name);
+            found = Directories.Find(z => z.Name.ToLower() == name);
             return found;
         }
 
