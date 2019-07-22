@@ -175,10 +175,6 @@ namespace czip
 
         public static void HandleErrors(IEnumerable<Error> errs)
         {
-            // TODO: Remove
-            Console.WriteLine("Errors occured:");
-            Array.ForEach<Error>(errs.ToArray(), e => ConsoleUtil.PrintError(e.ToString()));
-
             if (errs.Any(e
                 => e.GetType() == typeof(HelpRequestedError)
                 || e.GetType() == typeof(VersionRequestedError)))
