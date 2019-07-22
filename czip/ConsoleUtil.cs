@@ -81,7 +81,13 @@ namespace czip
             StringBuilder res = new StringBuilder();
             ConsoleKeyInfo c = new ConsoleKeyInfo();
             while (c.Key != ConsoleKey.Enter) {
-                c = Console.ReadKey();
+                c = Console.ReadKey(true);
+                if (c.Key == ConsoleKey.Backspace && res.Length > 0)
+                {
+                    Console.Write("\b \b");
+                    res.Remove(res.Length-1, 1);
+                    continue;
+                }
                 if (filter.Contains(c.KeyChar)) continue;
                 Console.Write(c.KeyChar);
                 res.Append(c.KeyChar);
