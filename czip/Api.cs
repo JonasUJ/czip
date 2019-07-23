@@ -40,9 +40,9 @@ namespace czip
             StringBuilder res = new StringBuilder();
             foreach (string path in paths)
             {
-                res.AppendLine($"\nIndex of {path}:");
                 ZipDirectory rootDir = Index(path);
                 if (rootDir == null) continue;
+                res.AppendLine($"\nIndex of {path}:");
                 res = PPIndexRecursionHelper(rootDir, res);
             }
             return res.ToString();
