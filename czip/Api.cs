@@ -75,13 +75,14 @@ namespace czip
             {
                 ConsoleUtil.PrintMessage($"Zipping {path}");
                 FileInfo fi = new FileInfo(path);
-                DirectoryInfo di = new DirectoryInfo(path);
                 if (fi.Exists)
                 {
                     ZipFile zfile = PackFile(fi);
                     if (zfile != null) rootDir.Files.Add(zfile);
+                    continue;
                 }
-                else if (di.Exists)
+                DirectoryInfo di = new DirectoryInfo(path);
+                if (di.Exists)
                 {
                     ZipDirectory zdir = PackDirectory(di);
                     if (zdir != null) rootDir.Directories.Add(zdir);
@@ -167,8 +168,7 @@ namespace czip
                     }
                     catch (CorruptionException)
                     {
-                        ConsoleUtil.PrintError("The .czip file is corrupt because it does not " +
-                            "contain all the data its index points to");
+                        ConsoleUtil.PrintError("Unable to unzip because the .czip file is corrupt");
                     }
                 }
             }
@@ -214,8 +214,8 @@ namespace czip
                         }
                         catch (CorruptionException)
                         {
-                            ConsoleUtil.PrintError("The .czip file is corrupt because it does " +
-                                "not contain all the data its index points to");
+                            ConsoleUtil.PrintError(
+                                "Unable to unzip because the .czip file is corrupt");
                         }
                     }
                 }
@@ -235,24 +235,35 @@ namespace czip
         public static void UnpackDirectory(
             ZipDirectory dir, MemoryMappedFile mmf, string dirPath)
         {
+            string path = $"{dirPath}\\{dir.Name}";
             ConsoleUtil.PrintInfo($"Unpacking directory {dir.Name}");
-            DirectoryInfo di = new DirectoryInfo($"{dirPath}\\{dir.Name}");
+            DirectoryInfo di;
             try
             {
-                di = Directory.CreateDirectory($"{dirPath}\\{dir.Name}");
+                di = new DirectoryInfo(path);
             }
-            catch (IOException)
+            catch (Exception ex) when (ex is ArgumentException || ex is PathTooLongException)
             {
-                string newName = ConsoleUtil.FilteredPrompt(
-                    "Unzip location already exist, type new name: ",
-                    Path.GetInvalidFileNameChars());
-                while (di.Exists) {
-                    newName = ConsoleUtil.FilteredPrompt(
-                        "New name also already exist, type another new name: ",
-                        Path.GetInvalidFileNameChars());
-                    di = new DirectoryInfo($"{dirPath}\\{newName}");
+                throw new CorruptionException($"Directory name \"{dir.Name}\" is invalid");
+            }
+
+            if (File.Exists(path))
+            if (ConsoleUtil.PromptYN("A file with the same name as the " +
+                 $"directory \"{di.FullName}\" being unpacked already exists, remove it?"))
+            {
+                try
+                {
+                    File.Delete(path);
+                }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    ConsoleUtil.PrintError("Unable delete file.");
+                    return;
                 }
             }
+            else return;
+            di.Create();
+
             foreach (ZipDirectory subdir in dir.Directories)
             {
                 UnpackDirectory(subdir, mmf, di.FullName);
@@ -265,10 +276,26 @@ namespace czip
 
         public static void UnpackFile(ZipFile zfile, MemoryMappedFile mmf, string dirPath)
         {
-            if (File.Exists($"{dirPath}\\{zfile.Name}") && !ConsoleUtil.PromptYN(
-                $"File \"{dirPath}\\{zfile.Name}\" exists, override it?")) return;
+            string path = $"{dirPath}\\{zfile.Name}";
+            if (Directory.Exists(path))
+            {
+                ConsoleUtil.PrintWarning($"Unable to unpack file {zfile.Name} to {path} because " +
+                    "a directory with the same name exists.");
+                return;
+            }
+            if (File.Exists(path) && !ConsoleUtil.PromptYN(
+                $"File \"{dirPath}\\{zfile.Name}\" already exists, overwrite it?")) return;
             ConsoleUtil.PrintInfo($"Unpacking file {zfile.Name}");
-            zfile.File = new FileInfo($"{dirPath}\\{zfile.Name}");
+            try
+            {
+                zfile.File = new FileInfo(path);
+            }
+            catch (Exception ex) when (ex is ArgumentException ||
+                                       ex is PathTooLongException ||
+                                       ex is NotSupportedException)
+            {
+                throw new CorruptionException($"File name \"{zfile.Name}\" is invalid");
+            }
             zfile.CopyFromMappedFile(mmf);
         }
     }

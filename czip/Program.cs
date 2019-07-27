@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using CommandLine;
 using CommandLine.Text;
-using System.Runtime.InteropServices;
 
 [assembly: AssemblyUsage(
     "   czip -p <PATH>... [-u [-s <PATH>...]] [-l <PATH>] [-i] [-y]",
@@ -21,7 +22,10 @@ namespace czip
         [DllImport("kernel32.dll")]
         private static extern bool FreeConsole();
 
+        public static Stopwatch stopwatch = new Stopwatch();
+
         private static bool isHelpOrVersion;
+        private static bool printTime = false;
 
         public class Options
         {
@@ -52,16 +56,21 @@ namespace czip
         {
             if (args != null && args.Length > 0)
             {
+                stopwatch.Start();
+                ConsoleUtil.stopwatch = stopwatch;
                 Parser.Default.ParseArguments<Options>(args)
                     .WithNotParsed(errs => HandleErrors(errs))
                     .WithParsed(opts => RunOptions(opts));
+                stopwatch.Stop();
 
+                if (printTime) Console.WriteLine($"Time elapsed: {stopwatch.Elapsed}");
                 Console.Write("Press any key to exit . . . ");
                 Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Sorry, but the console will be unavailable until the program has been closed :(");
+                Console.WriteLine("Sorry, but the console will be unavailable until the program " +
+                    " has been closed :(");
                 FreeConsole();
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
@@ -90,6 +99,7 @@ namespace czip
                         Api.Unzip(opts.Path, opts.Select);
                     else
                         Api.Unzip(opts.Path);
+                    printTime = true;
                 }
                 else
                 {
@@ -109,6 +119,7 @@ namespace czip
 
                     }
                     Api.Zip(opts.Path, finalName);
+                    printTime = true;
                 }
             }
             else

@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace czip
 {
@@ -35,6 +36,7 @@ namespace czip
 
     public static class ConsoleUtil
     {
+        public static Stopwatch stopwatch;
         public static bool AgreeToPrompts;
         public static bool Verbose;
         public static event EventHandler<MessageEventArgs> RaiseMessageEvent;
@@ -66,12 +68,20 @@ namespace czip
             if (handler != null) handler(typeof(ConsoleUtil), e);
         }
 
+        public static string ReadLine()
+        {
+            stopwatch.Stop();
+            string s = Console.ReadLine();
+            stopwatch.Start();
+            return s;
+        }
+
         public static bool PromptYN(string q)
         {
             if (AgreeToPrompts) return true;
             Console.Write(q);
             Console.Write(" [y/n]: ");
-            if (Console.ReadLine().ToString().ToLower() == "y") return true;
+            if (ReadLine().ToString().ToLower() == "y") return true;
             return false;
         }
 
@@ -80,6 +90,7 @@ namespace czip
             Console.Write(msg);
             StringBuilder res = new StringBuilder();
             ConsoleKeyInfo c = new ConsoleKeyInfo();
+            stopwatch.Stop();
             while (c.Key != ConsoleKey.Enter) {
                 c = Console.ReadKey(true);
                 if (c.Key == ConsoleKey.Backspace && res.Length > 0)
@@ -92,6 +103,8 @@ namespace czip
                 Console.Write(c.KeyChar);
                 res.Append(c.KeyChar);
             }
+            Console.WriteLine();
+            stopwatch.Start();
             return res.ToString();
         }
 
