@@ -40,26 +40,27 @@ namespace czip
             return found;
         }
 
-        public string Serialize()
+        public SerializedData Serialize()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"{Name}{IndexParser.GS}");
-
-            foreach (ZipDirectory zdir in Directories)
-            {
-                sb.Append(IndexParser.RS);
-                sb.Append(zdir.Serialize());
-            }
-            sb.Append(IndexParser.GS);
+            SerializedData sd = new SerializedData();
+            sd.Add(Name);
+            sd.AddGS();
 
             foreach (ZipFile zfile in Files)
             {
-                sb.Append(IndexParser.RS);
-                sb.Append(zfile.Serialize());
+                sd.AddRS();
+                sd.Add(zfile.Serialize());
             }
-            sb.Append(IndexParser.GS);
+            sd.AddGS();
 
-            return sb.ToString();
+            foreach (ZipDirectory zdir in Directories)
+            {
+                sd.AddRS();
+                sd.Add(zdir.Serialize());
+            }
+            sd.AddGS();
+
+            return sd;
         }
     }
 }

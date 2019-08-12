@@ -28,38 +28,42 @@ namespace czip
             return root;
         }
 
+        private static long CharArrayToLong(char[] c)
+        {
+            long res = 0L;
+            for (int i = 0; i < 8; i++)
+                res = (c[i] << 8 * i) + res;
+            res -= 32;
+            return res;
+        }
+
+        private static long ReadLong(StreamReader stream)
+        {
+            char[] c = new char[8];
+            stream.ReadBlock(c, 0, c.Length);
+            return CharArrayToLong(c);
+        }
+
         private static ZipFile ParseFile(StreamReader stream)
         {
-            int i = 0;
             char curChar;
             StringBuilder curField = new StringBuilder();
             ZipFile zfile = new ZipFile();
-            do
-            {
-                curChar = (char)stream.Read();
-                if (curChar == US)
-                {
-                    try
-                    {
-                        zfile.PopulateProperty(i, curField.ToString());
-                    }
-                    catch (IndexOutOfRangeException) { }
-                    curChar = (char)0;
-                    curField.Clear();
-                    i++;
-                }
-                else if (stream.EndOfStream)
-                    throw new ParseException("End of stream while parsing");
-                else
-                    curField.Append(curChar);
-            } while (curChar != FS);
 
-            if (i != ZipFile.PropertyMap.Length)
-                ConsoleUtil.PrintWarning(
-                    $"File \"{zfile.Name ?? "UNKNOWN NAME"}\" has an unexpected amount of " +
-                    $"properties ({i}, should be {ZipFile.PropertyMap.Length})");
-            ConsoleUtil.PrintInfo(
-                $"Parsed file \"{zfile.Name ?? "UNKNOWN NAME"}\" from index");
+            // Parse Name
+            curChar = (char)stream.Read();
+            while (curChar != US)
+            {
+                curField.Append(curChar);
+                curChar = (char)stream.Read();
+            }
+            zfile.Name = curField.ToString();
+
+            // Parse Start and Size
+            zfile.Start = ReadLong(stream);
+            zfile.Size = ReadLong(stream);
+
+            ConsoleUtil.PrintInfo($"Parsed file \"{zfile.Name}\" from index");
             return zfile;
         }
 
@@ -84,18 +88,18 @@ namespace czip
                 curField.Append(curChar);
             }
 
-            // Parse Directories
-            while (stream.Read() == RS)
-            {
-                ZipDirectory nzdir = ParseDirectory(stream);
-                zdir.Directories.Add(nzdir);
-            }
-
             // Parse Files
             while (stream.Read() == RS)
             {
                 ZipFile nzfile = ParseFile(stream);
                 zdir.Files.Add(nzfile);
+            }
+
+            // Parse Directories
+            while (stream.Read() == RS)
+            {
+                ZipDirectory nzdir = ParseDirectory(stream);
+                zdir.Directories.Add(nzdir);
             }
 
             ConsoleUtil.PrintInfo(

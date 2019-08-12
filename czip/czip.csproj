@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializedData.cs" />
     <Compile Include="ZipDirectory.cs" />
     <Compile Include="ZipFile.cs" />
     <EmbeddedResource Include="MainForm.resx">

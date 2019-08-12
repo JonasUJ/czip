@@ -20,7 +20,7 @@ namespace czip
         public static ZipDirectory Index(string path)
         {
             using (StreamReader stream = new StreamReader(
-                File.OpenRead(path), Encoding.Unicode))
+                File.OpenRead(path), Encoding.Default))
             {
                 try
                 {
@@ -89,11 +89,12 @@ namespace czip
                 }
             }
 
-            int offset = Encoding.Unicode.GetByteCount(rootDir.Serialize());
+            long offset = rootDir.Serialize().Length;
             rootDir.OffsetFiles(offset);
             using (FileStream fs = File.Create(location))
             {
-                fs.Write(Encoding.Unicode.GetBytes(rootDir.Serialize()), 0, offset);
+                SerializedData sd = rootDir.Serialize();
+                sd.CopyTo(fs);
                 foreach (ZipFile zfile in rootDir.AllFiles())
                     zfile.CopyToFile(fs);
                 ConsoleUtil.PrintMessage($"Created .czip file {location}");
@@ -162,14 +163,18 @@ namespace czip
                        MemoryMappedFile.CreateFromFile(path, FileMode.Open))
                 {
                     ConsoleUtil.PrintMessage("Unpacking...");
+#if !DEBUG
                     try
                     {
+#endif
                         UnpackDirectory(rootDir, mmf, Directory.GetCurrentDirectory());
+#if !DEBUG
                     }
                     catch (CorruptionException)
                     {
                         ConsoleUtil.PrintError("Unable to unzip because the .czip file is corrupt");
                     }
+#endif
                 }
             }
         }
@@ -192,8 +197,10 @@ namespace czip
                             selector.Split(
                                 new char[] { '\\', '/' },
                                 StringSplitOptions.RemoveEmptyEntries));
+#if !DEBUG
                         try
                         {
+#endif
                             if (zip is ZipDirectory zdir)
                             {
                                 ConsoleUtil.PrintMessage(
@@ -211,12 +218,14 @@ namespace czip
                                 ConsoleUtil.PrintWarning(
                                     $"Selector {selector} not found in {path}");
                             }
+#if !DEBUG
                         }
                         catch (CorruptionException)
                         {
                             ConsoleUtil.PrintError(
                                 "Unable to unzip because the .czip file is corrupt");
                         }
+#endif
                     }
                 }
             }
@@ -286,16 +295,16 @@ namespace czip
             if (File.Exists(path) && !ConsoleUtil.PromptYN(
                 $"File \"{dirPath}\\{zfile.Name}\" already exists, overwrite it?")) return;
             ConsoleUtil.PrintInfo($"Unpacking file {zfile.Name}");
-            try
-            {
+            // try
+            // {
                 zfile.File = new FileInfo(path);
-            }
-            catch (Exception ex) when (ex is ArgumentException ||
-                                       ex is PathTooLongException ||
-                                       ex is NotSupportedException)
-            {
-                throw new CorruptionException($"File name \"{zfile.Name}\" is invalid");
-            }
+            // }
+            // catch (Exception ex) when (ex is ArgumentException ||
+            //                            ex is PathTooLongException ||
+            //                            ex is NotSupportedException)
+            // {
+            //     throw new CorruptionException($"File name \"{zfile.Name}\" is invalid");
+            // }
             zfile.CopyFromMappedFile(mmf);
         }
     }

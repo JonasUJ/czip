@@ -15,13 +15,6 @@ namespace czip
         public long Size;
         public FileInfo File;
 
-        public static Action<ZipFile, object>[] PropertyMap =
-        {
-            (o, v) => o.Name = v.ToString(),
-            (o, v) => o.Start = Convert.ToInt64(v),
-            (o, v) => o.Size = Convert.ToInt64(v),
-        };
-
         public ZipFile() { }
 
         public ZipFile(FileInfo fi)
@@ -29,11 +22,6 @@ namespace czip
             File = fi;
             Size = File.Length;
             Name = fi.Name;
-        }
-
-        public void PopulateProperty(int index, object value)
-        {
-            PropertyMap[index](this, value);
         }
 
         public void CopyFromMappedFile(MemoryMappedFile file)
@@ -68,13 +56,13 @@ namespace czip
             }
         }
 
-        public string Serialize()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"{Name}{IndexParser.US}" +
-                      $"{Start.ToString("D16")}{IndexParser.US}" +
-                      $"{Size.ToString("D16")}{IndexParser.US}{IndexParser.FS}");
-            return sb.ToString();
+        public SerializedData Serialize() {
+            SerializedData sd = new SerializedData();
+            sd.Add(Name);
+            sd.AddUS();
+            sd.Add(Start);
+            sd.Add(Size);
+            return sd;
         }
     }
 }
