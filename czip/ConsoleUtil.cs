@@ -2,16 +2,13 @@
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace czip
 {
     public class ConsoleEventArgs : EventArgs
     {
-        public ConsoleEventArgs(string msg) { message = msg; }
-        private string message;
-        public string Message { get => message; }
+        public ConsoleEventArgs(string msg) { Message = msg; }
+        public string Message { get; }
     }
 
     public class MessageEventArgs : ConsoleEventArgs
@@ -39,33 +36,29 @@ namespace czip
         public static Stopwatch stopwatch;
         public static bool AgreeToPrompts;
         public static bool Verbose;
-        public static event EventHandler<MessageEventArgs> RaiseMessageEvent;
-        public static event EventHandler<InfoEventArgs> RaiseInfoEvent;
-        public static event EventHandler<WarningEventArgs> RaiseWarningEvent;
-        public static event EventHandler<ErrorEventArgs> RaiseErrorEvent;
+        public static event EventHandler<MessageEventArgs> MessageEvent;
+        public static event EventHandler<InfoEventArgs> InfoEvent;
+        public static event EventHandler<WarningEventArgs> WarningEvent;
+        public static event EventHandler<ErrorEventArgs> ErrorEvent;
 
-        private static void OnMessageEvent(MessageEventArgs e)
+        private static void RaiseMessageEvent(MessageEventArgs e)
         {
-            EventHandler<MessageEventArgs> handler = RaiseMessageEvent;
-            if (handler != null) handler(typeof(ConsoleUtil), e);
+            MessageEvent?.Invoke(typeof(ConsoleUtil), e);
         }
 
-        private static void OnInfoEvent(InfoEventArgs e)
+        private static void RaiseInfoEvent(InfoEventArgs e)
         {
-            EventHandler<InfoEventArgs> handler = RaiseInfoEvent;
-            if (handler != null) handler(typeof(ConsoleUtil), e);
+            InfoEvent?.Invoke(typeof(ConsoleUtil), e);
         }
 
-        private static void OnWarningEvent(WarningEventArgs e)
+        private static void RaiseWarningEvent(WarningEventArgs e)
         {
-            EventHandler<WarningEventArgs> handler = RaiseWarningEvent;
-            if (handler != null) handler(typeof(ConsoleUtil), e);
+            WarningEvent?.Invoke(typeof(ConsoleUtil), e);
         }
 
-        private static void OnErrorEvent(ErrorEventArgs e)
+        private static void RaiseErrorEvent(ErrorEventArgs e)
         {
-            EventHandler<ErrorEventArgs> handler = RaiseErrorEvent;
-            if (handler != null) handler(typeof(ConsoleUtil), e);
+            ErrorEvent?.Invoke(typeof(ConsoleUtil), e);
         }
 
         public static string ReadLine()
@@ -81,44 +74,43 @@ namespace czip
             if (AgreeToPrompts) return true;
             Console.Write(q);
             Console.Write(" [y/n]: ");
-            if (ReadLine().ToString().ToLower() == "y") return true;
-            return false;
+            return ReadLine().ToLower() == "y";
         }
 
-        public static string FilteredPrompt(string msg, char[] filter)
-        {
-            Console.Write(msg);
-            StringBuilder res = new StringBuilder();
-            ConsoleKeyInfo c = new ConsoleKeyInfo();
-            stopwatch.Stop();
-            while (c.Key != ConsoleKey.Enter) {
-                c = Console.ReadKey(true);
-                if (c.Key == ConsoleKey.Backspace && res.Length > 0)
-                {
-                    Console.Write("\b \b");
-                    res.Remove(res.Length-1, 1);
-                    continue;
-                }
-                if (filter.Contains(c.KeyChar)) continue;
-                Console.Write(c.KeyChar);
-                res.Append(c.KeyChar);
-            }
-            Console.WriteLine();
-            stopwatch.Start();
-            return res.ToString();
-        }
+        //public static string FilteredPrompt(string msg, char[] filter)
+        //{
+        //    Console.Write(msg);
+        //    StringBuilder res = new StringBuilder();
+        //    ConsoleKeyInfo c = new ConsoleKeyInfo();
+        //    stopwatch.Stop();
+        //    while (c.Key != ConsoleKey.Enter) {
+        //        c = Console.ReadKey(true);
+        //        if (c.Key == ConsoleKey.Backspace && res.Length > 0)
+        //        {
+        //            Console.Write("\b \b");
+        //            res.Remove(res.Length-1, 1);
+        //            continue;
+        //        }
+        //        if (filter.Contains(c.KeyChar)) continue;
+        //        Console.Write(c.KeyChar);
+        //        res.Append(c.KeyChar);
+        //    }
+        //    Console.WriteLine();
+        //    stopwatch.Start();
+        //    return res.ToString();
+        //}
 
         public static void PrintMessage(string msg)
         {
-            OnMessageEvent(new MessageEventArgs(msg));
+            RaiseMessageEvent(new MessageEventArgs(msg));
             Console.WriteLine(msg);
         }
 
         public static void PrintInfo(string msg)
         {
             if (!Verbose) return;
+            RaiseInfoEvent(new InfoEventArgs(msg));
             ConsoleColor tempStore = Console.ForegroundColor;
-            OnInfoEvent(new InfoEventArgs(msg));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;
@@ -126,8 +118,8 @@ namespace czip
 
         public static void PrintWarning(string msg)
         {
+            RaiseWarningEvent(new WarningEventArgs(msg));
             ConsoleColor tempStore = Console.ForegroundColor;
-            OnWarningEvent(new WarningEventArgs(msg));
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;
@@ -135,8 +127,8 @@ namespace czip
 
         public static void PrintError(string msg)
         {
+            RaiseErrorEvent(new ErrorEventArgs(msg));
             ConsoleColor tempStore = Console.ForegroundColor;
-            OnErrorEvent(new ErrorEventArgs(msg));
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(msg);
             Console.ForegroundColor = tempStore;

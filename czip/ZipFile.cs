@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace czip
 {
-    public class ZipFile : IZippable
+    public class ZipFile : IZippable, IEquatable<ZipFile>
     {
         public string Name { get; set; }
         public string Extension { get => Path.GetExtension(Name); }
@@ -22,6 +20,14 @@ namespace czip
             File = fi;
             Size = File.Length;
             Name = fi.Name;
+        }
+
+        public ZipFile(string name, long start, long size)
+        {
+            Name = name;
+            Start = start;
+            Size = size;
+            File = null;
         }
 
         public void CopyFromMappedFile(MemoryMappedFile file)
@@ -45,7 +51,6 @@ namespace czip
             }
             else
                 using (FileStream _ = File.Create()) { }
-
         }
 
         public void CopyToFile(FileStream stream)
@@ -56,13 +61,46 @@ namespace czip
             }
         }
 
-        public SerializedData Serialize() {
+        public SerializedData Serialize()
+        {
             SerializedData sd = new SerializedData();
             sd.Add(Name);
             sd.AddUS();
             sd.Add(Start);
             sd.Add(Size);
             return sd;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ZipFile);
+        }
+
+        public bool Equals(ZipFile other)
+        {
+            return other != null &&
+                   Name == other.Name &&
+                   Start == other.Start &&
+                   Size == other.Size;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1898371460;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + Start.GetHashCode();
+            hashCode = hashCode * -1521134295 + Size.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(ZipFile left, ZipFile right)
+        {
+            return EqualityComparer<ZipFile>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(ZipFile left, ZipFile right)
+        {
+            return !(left == right);
         }
     }
 }

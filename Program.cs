@@ -64,8 +64,8 @@ namespace czip
                 stopwatch.Stop();
 
                 if (printTime) Console.WriteLine($"Time elapsed: {stopwatch.Elapsed}");
-                // Console.Write("Press any key to exit . . . ");
-                // Console.ReadKey();
+                Console.Write("Press any key to exit . . . ");
+                Console.ReadKey();
             }
             else
             {

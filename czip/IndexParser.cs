@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace czip
 {
@@ -22,29 +18,28 @@ namespace czip
         public const char RS = (char)30;
         public const char US = (char)31;
 
-        public static ZipDirectory Parse(StreamReader stream)
+        public static ZipDirectory Parse(BinaryReader stream)
         {
             ZipDirectory root = ParseDirectory(stream);
             return root;
         }
 
-        private static long CharArrayToLong(char[] c)
+        private static long ByteArrayToLong(byte[] c)
         {
             long res = 0L;
             for (int i = 0; i < 8; i++)
-                res = (c[i] << 8 * i) + res;
-            res -= 32;
+                res = (c[i] << (8 * i)) + res;
             return res;
         }
 
-        private static long ReadLong(StreamReader stream)
+        private static long ReadLong(BinaryReader stream)
         {
-            char[] c = new char[8];
-            stream.ReadBlock(c, 0, c.Length);
-            return CharArrayToLong(c);
+            byte[] c = new byte[8];
+            stream.Read(c, 0, c.Length);
+            return ByteArrayToLong(c);
         }
 
-        private static ZipFile ParseFile(StreamReader stream)
+        private static ZipFile ParseFile(BinaryReader stream)
         {
             char curChar;
             StringBuilder curField = new StringBuilder();
@@ -60,14 +55,14 @@ namespace czip
             zfile.Name = curField.ToString();
 
             // Parse Start and Size
-            zfile.Start = ReadLong(stream);
-            zfile.Size = ReadLong(stream);
+            zfile.Start = stream.ReadInt64();
+            zfile.Size = stream.ReadInt64();
 
-            ConsoleUtil.PrintInfo($"Parsed file \"{zfile.Name}\" from index");
+            ConsoleUtil.PrintInfo($"Parsed file \"{zfile.Name}\" from index ({zfile.Start}+{zfile.Size})");
             return zfile;
         }
 
-        private static ZipDirectory ParseDirectory(StreamReader stream)
+        private static ZipDirectory ParseDirectory(BinaryReader stream)
         {
             char curChar;
             StringBuilder curField = new StringBuilder();
@@ -83,7 +78,7 @@ namespace czip
                     curField.Clear();
                     break;
                 }
-                else if (stream.EndOfStream)
+                else if (stream.BaseStream.Position >= stream.BaseStream.Length)
                     throw new ParseException("End of stream while parsing");
                 curField.Append(curChar);
             }
