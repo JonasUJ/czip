@@ -73,6 +73,12 @@
     <Compile Include="Api.cs" />
     <Compile Include="ConsoleUtil.cs" />
     <Compile Include="IndexParser.cs" />
+    <Compile Include="InfoMonitor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InfoMonitor.Designer.cs">
+      <DependentUpon>InfoMonitor.cs</DependentUpon>
+    </Compile>
     <Compile Include="IZippable.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -85,6 +91,9 @@
     <Compile Include="SerializedData.cs" />
     <Compile Include="ZipDirectory.cs" />
     <Compile Include="ZipFile.cs" />
+    <EmbeddedResource Include="InfoMonitor.resx">
+      <DependentUpon>InfoMonitor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

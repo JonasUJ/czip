@@ -72,6 +72,8 @@ namespace czip
                 Console.WriteLine("Sorry, but the console will be unavailable until the program " +
                     " has been closed :(");
                 FreeConsole();
+                ConsoleUtil.Verbose = true;
+                ConsoleUtil.Prints = false;
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new MainForm());

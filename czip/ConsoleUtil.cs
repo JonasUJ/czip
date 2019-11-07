@@ -36,6 +36,7 @@ namespace czip
         public static Stopwatch stopwatch;
         public static bool AgreeToPrompts;
         public static bool Verbose;
+        public static bool Prints = true;
         public static event EventHandler<MessageEventArgs> MessageEvent;
         public static event EventHandler<InfoEventArgs> InfoEvent;
         public static event EventHandler<WarningEventArgs> WarningEvent;
@@ -110,28 +111,37 @@ namespace czip
         {
             if (!Verbose) return;
             RaiseInfoEvent(new InfoEventArgs(msg));
-            ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = tempStore;
+            if (Prints)
+            {
+                ConsoleColor tempStore = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine(msg);
+                Console.ForegroundColor = tempStore;
+            }
         }
 
         public static void PrintWarning(string msg)
         {
             RaiseWarningEvent(new WarningEventArgs(msg));
-            ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = tempStore;
+            if (Prints)
+            {
+                ConsoleColor tempStore = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(msg);
+                Console.ForegroundColor = tempStore;
+            }
         }
 
         public static void PrintError(string msg)
         {
             RaiseErrorEvent(new ErrorEventArgs(msg));
-            ConsoleColor tempStore = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = tempStore;
+            if (Prints)
+            {
+                ConsoleColor tempStore = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine(msg);
+                Console.ForegroundColor = tempStore;
+            }
         }
     }
 }
